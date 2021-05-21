@@ -60,6 +60,19 @@ class ChatUser {
     });
   }
 
+    /** Handle a joke: broadcast to user.
+   *
+   * @param text {string} message to send
+   * */
+
+    handleJoke() {
+    this._send(JSON.stringify({
+      name: "server",
+      type: "joke",
+      text: "I'm afraid of calendars. It says my days are numbered.",
+    }));
+  }
+
   /** Handle messages from client:
    *
    * @param jsonData {string} raw message data
@@ -72,10 +85,17 @@ class ChatUser {
 
   handleMessage(jsonData) {
     let msg = JSON.parse(jsonData);
+    console.log("MESSAGE--->", msg);
 
-    if (msg.type === "join") this.handleJoin(msg.name);
-    else if (msg.type === "chat") this.handleChat(msg.text);
-    else throw new Error(`bad message: ${msg.type}`);
+    if (msg.type === "join") {
+      this.handleJoin(msg.name);
+    } else if (msg.type === "chat") {
+      this.handleChat(msg.text);
+    } else if (msg.type === "joke") {
+      this.handleJoke();
+    } else {
+      throw new Error(`bad message: ${msg.type}`);
+    } 
   }
 
   /** Connection was closed: leave room, announce exit to others. */
