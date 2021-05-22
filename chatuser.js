@@ -60,17 +60,32 @@ class ChatUser {
     });
   }
 
-    /** Handle a joke: broadcast to user.
-   *
-   * @param text {string} message to send
-   * */
+  /** Handle a joke: broadcast to user.
+ *
+ * @param text {string} message to send
+ * */
 
-    handleJoke() {
+  handleJoke() {
     this._send(JSON.stringify({
-      name: "server",
+      name: "joke",
       type: "joke",
       text: "I'm afraid of calendars. It says my days are numbered.",
     }));
+  }
+
+  showMemberList() {
+    let members = this.room.members;
+    // console.log("this.room.members entries", members)
+    let memberList = [];
+    for (let key of members) {
+      memberList.push(key.name);
+    }
+
+    this._send(JSON.stringify({
+      name: "In room",
+      type: "members",
+      text: memberList.join(", ")
+    }))
   }
 
   /** Handle messages from client:
@@ -86,16 +101,17 @@ class ChatUser {
   handleMessage(jsonData) {
     let msg = JSON.parse(jsonData);
     console.log("MESSAGE--->", msg);
-
     if (msg.type === "join") {
       this.handleJoin(msg.name);
     } else if (msg.type === "chat") {
       this.handleChat(msg.text);
     } else if (msg.type === "joke") {
       this.handleJoke();
+    } else if (msg.type === "members") {
+      this.showMemberList();
     } else {
       throw new Error(`bad message: ${msg.type}`);
-    } 
+    }
   }
 
   /** Connection was closed: leave room, announce exit to others. */
